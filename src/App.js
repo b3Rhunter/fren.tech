@@ -36,7 +36,44 @@ function App() {
 
   const connectWallet = async () => {
     try {
-      const _provider = new ethers.providers.Web3Provider(window.ethereum);
+      let _provider;
+      _provider = new ethers.providers.Web3Provider(window.ethereum);
+      await _provider.send("eth_requestAccounts", []);
+      const network = await _provider.getNetwork();
+      const desiredChainId = '0x14A33';  //base mainnet 0x2105
+      if (network.chainId !== parseInt(desiredChainId)) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainId }],
+          });
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: desiredChainId,
+                  chainName: 'Base Mainnet',
+                  nativeCurrency: {
+                    name: 'ETH',
+                    symbol: 'ETH',
+                    decimals: 18
+                  },
+                  rpcUrls: ['https://developer-access-mainnet.base.org'],
+                  blockExplorerUrls: ['https://basescan.org'],
+                }],
+              });
+            } catch (addError) {
+              throw addError;
+            }
+          } else {
+            throw switchError;
+          }
+        }
+      }
+      
+      _provider = new ethers.providers.Web3Provider(window.ethereum);
       console.log('provider: ', _provider.toString())
       const _account = await _provider.send("eth_requestAccounts", []);
       console.log('account: ', _account.toString())
@@ -53,7 +90,7 @@ function App() {
       console.log('auth: ', auth.toString())
       const getUserName = await _authContract.tokenName(address)
       //setUserName(getUserName)
-      await _signer.signMessage("Welcome to EthAuth!");
+      await _signer.signMessage("Welcome to Fren.Tech!");
 
       let userDetails = {
         name: '',
