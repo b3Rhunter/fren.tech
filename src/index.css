@@ -177,6 +177,38 @@ header {
   gap: 30px;
 }
 
+.create-account input[type="text"],
+.create-account label.file-upload,
+.create-account button {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  border-radius: 50em;
+  text-align: center;
+  width: 50%;
+  padding: 0.75em 1em;
+}
+
+.create-account label.file-upload {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.create-account label.file-upload:hover {
+  transform: translateY(-4px);
+}
+
+.create-account input[type="file"] {
+  display: none;
+}
+
+.file-upload span {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+
 .user-avatar {
   width: 60px;
   border: 1px solid white;
@@ -213,7 +245,13 @@ header {
   align-items: center;
   justify-content: flex-end;
   width: 33%;
+  gap: 20px;
   flex-wrap: wrap;
+}
+
+.mint-button .button {
+  width: 75px;
+  font-size: 1em;
 }
 
 .button {

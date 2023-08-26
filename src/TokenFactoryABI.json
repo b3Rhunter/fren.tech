@@ -39,6 +39,19 @@
 	},
 	{
 		"inputs": [],
+		"name": "Auth",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "CREATOR_FEE",
 		"outputs": [
 			{
@@ -177,26 +190,13 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_socialMediaAuthNFT",
+				"name": "_Auth",
 				"type": "address"
 			}
 		],
-		"name": "setSocialMediaAuthNFT",
+		"name": "setAuth",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "socialMediaAuthNFT",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{

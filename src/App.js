@@ -5,8 +5,8 @@ import TokenFactoryABI from './TokenFactoryABI.json';
 import TokenABI from './TokenABI.json';
 import { storage, db } from './firebase';
 
-const authAddress = "0xf11901D4ADEe17A147Cf881F4553c9Acb914Ed6A";
-const tokenFactoryAddress = "0xC9d27A7C0c6e4bcc068FFb03e8bE03387F64CBa2";
+const authAddress = "0x2491433486fB25CDEC54D26B0A907e084D42Ad13";
+const tokenFactoryAddress = "0xe9c73936406Bc6324CBaF7dB7065aB965FB918BB";
 
 function App() {
 
@@ -37,14 +37,20 @@ function App() {
   const connectWallet = async () => {
     try {
       const _provider = new ethers.providers.Web3Provider(window.ethereum);
+      console.log('provider: ', _provider.toString())
       const _account = await _provider.send("eth_requestAccounts", []);
+      console.log('account: ', _account.toString())
       const _signer = _provider.getSigner();
+      console.log('signer: ', _signer.toString())
       const _authContract = new ethers.Contract(authAddress, ABI, _signer);
+      console.log('auth Contract: ', _authContract.toString())
       const _tokenContract = new ethers.Contract(tokenFactoryAddress, TokenFactoryABI, _signer);
+      console.log('token contract: ', _tokenContract.toString())
       setTokenContract(_tokenContract)
       const address = await _signer.getAddress();
+      console.log('address: ', address.toString())
       const auth = await _authContract.balanceOf(address);
-
+      console.log('auth: ', auth.toString())
       await _signer.signMessage("Welcome to EthAuth!");
 
       let userDetails = {
@@ -56,8 +62,11 @@ function App() {
       if (!auth.eq(ethers.constants.Zero)) {
         userDetails.name = await _authContract.tokenName(address);
         userDetails.tokenURI = await _authContract.tokenURI(address);
-        const TokenContractAddress = await _tokenContract.getTokensByUser(address);
-        const parseAddress = TokenContractAddress.toString();
+        
+        // Use the last address in the array
+        const TokenContractAddressArray = await _tokenContract.getTokensByUser(address);
+        const parseAddress = TokenContractAddressArray[TokenContractAddressArray.length - 1].toString();
+        
         setTokenAddress(parseAddress)
         const userTokenContract = new ethers.Contract(parseAddress, TokenABI, _signer);
         const balance = await userTokenContract.balanceOf(address);
@@ -65,7 +74,7 @@ function App() {
         setTokenName(_tokenName)
         const parseBalance = await ethers.utils.formatEther(balance.toString());
         setTokenBalance(parseBalance.toString())
-      }
+    }    
 
       setState({
         ...state,
@@ -121,7 +130,6 @@ function App() {
           } catch (error) {
             console.error("Minting failed:", error);
           }
-
         }
       );
     } else {
@@ -167,20 +175,20 @@ function App() {
       console.log(error)
     }
     return fetchedNFTs;
-};
+  };
 
   const fetchAllUserTokens = async (nfts) => {
     if (!Array.isArray(nfts)) {
       console.warn("nfts is not an array:", nfts);
       return;
-  }
+    }
     try {
       const allUserTokenDetails = [];
       for (const nft of nfts) {
         const userAddressBigNumber = ethers.BigNumber.from(nft.tokenId);
         const userAddress = ethers.utils.getAddress(userAddressBigNumber.toHexString());
-        const TokenContractAddress = await tokenContract.getTokensByUser(userAddress);
-        const parseAddress = TokenContractAddress.toString();
+        const TokenContractAddressArray = await tokenContract.getTokensByUser(userAddress);
+        const parseAddress = TokenContractAddressArray[TokenContractAddressArray.length - 1].toString();
         const userTokenContract = new ethers.Contract(parseAddress, TokenABI, state.signer);
         const balance = await userTokenContract.balanceOf(userAddress);
         const parseBalance = await ethers.utils.formatEther(balance.toString());
@@ -196,7 +204,7 @@ function App() {
           balance: parseBalance,
           totalSupply: parseTotalSupply,
           maxSupply: parseMaxSupply,
-          pricePerToken: parsePriceForOneToken 
+          pricePerToken: parsePriceForOneToken
         });
       }
       setAllUserTokens(allUserTokenDetails);
@@ -205,17 +213,33 @@ function App() {
     }
   };
 
-  const mintToken = async (tokenAddress) => {
+  const mintToken = async (tokenAddress, amount) => {
     try {
-      const amount = "1";
       const userTokenContract = new ethers.Contract(tokenAddress, TokenABI, state.signer);
-      const pricePerToken = await userTokenContract.getPrice(amount);
-      const tx = await userTokenContract.mintShares(amount, { value: pricePerToken.toString() });
+      const getPrice = await userTokenContract.getPrice(amount)
+      const parseGetPrice = Number(ethers.utils.formatEther(getPrice))
+      const fees = Number("0.001")
+      const pricePerToken = parseGetPrice + fees;
+      const parsePrice = ethers.utils.parseEther(pricePerToken.toString())
+      const tx = await userTokenContract.buy(amount, { value: parsePrice.toString() });
       await tx.wait();
     } catch (error) {
       console.error("Error minting tokens:", error);
     }
   };
+
+
+  const sellToken = async (tokenAddress, amount) => {
+    try {
+      const userTokenContract = new ethers.Contract(tokenAddress, TokenABI, state.signer);
+      const fees = ethers.utils.parseEther("0.001")
+      const tx = await userTokenContract.sell(amount, { value: fees.toString() });
+      await tx.wait();
+    } catch (error) {
+      console.error("Error selling tokens:", error);
+    }
+  };
+
 
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
@@ -242,7 +266,7 @@ function App() {
       }
     };
     updateNFTsAndTokens();
-}, [state.authContract, state.connected]);
+  }, [state.authContract, state.connected]);
 
   const renderContent = () => {
     if (!state.connected) return <p>please connect wallet...</p>;
@@ -250,9 +274,13 @@ function App() {
       return (
         <div className='create-account'>
           <input type="text" placeholder="choose user name..." value={state.userDetails.name} onChange={(e) => setState({ ...state, userDetails: { ...state.userDetails, name: e.target.value } })} />
-          <input type="file" onChange={handleImageChange} />
+          <label className="file-upload">
+            <input className='upload' type="file" onChange={handleImageChange} />
+            <span>Upload Profile Picture</span>
+          </label>
           <button onClick={handleMint}>Create Account</button>
         </div>
+
       );
     }
 
@@ -273,8 +301,8 @@ function App() {
             return (
               <div className='feed' key={index}>
                 <div className='feed-1'>
-                <img className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
-                <h3>{nft.tokenName}</h3>
+                  <img className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
+                  <h3>{nft.tokenName}</h3>
                 </div>
 
                 {userToken && (
@@ -287,8 +315,10 @@ function App() {
                   </div>
                 )}
                 <div className='mint-button'>
-                <button className='button' onClick={() => mintToken(userToken.address, 1)}>Buy Shares</button>
+                  <button className='button' onClick={() => mintToken(userToken.address, 1)}>Buy</button>
+                  <button className='button' onClick={() => sellToken(userToken.address, 1)}>Sell</button>
                 </div>
+
               </div>
             );
           })}
@@ -313,7 +343,7 @@ function App() {
         {state.connected && (
           <div className='nav'>
             <button onClick={() => setState({ ...state, view: 'home' })}>Home</button>
-            <button onClick={() => setState({ ...state, view: 'allUsers' })}>Friends</button>
+            <button onClick={() => setState({ ...state, view: 'allUsers' })}>Frens</button>
             <button onClick={handleBurn}>Delete Account</button>
           </div>
         )}
