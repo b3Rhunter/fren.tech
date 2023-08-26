@@ -340,9 +340,9 @@ function App() {
             return (
               <div className='feed' key={index}>
                 <div className='feed-1'>
-                  <img className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
-                  <h3>{nft.tokenName}</h3>
-                </div>
+                  <img style={{width: "50px", height: "50px"}} className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
+                  <h3 style={{fontSize: "18px"}}>{nft.tokenName}</h3>
+              </div>
 
                 {userToken && (
                   <div className='token-details'>
@@ -370,7 +370,7 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>Fren.Tech</h1>
+        
         {!state.connected && <button className='disconnect' onClick={connectWallet}>connect</button>}
         {state.connected && (
           <div>
@@ -379,6 +379,7 @@ function App() {
           </div>
         )}
         {state.connected && <button className='disconnect' onClick={disconnect}>{tokenName}</button>}
+        <h1>Fren.Tech</h1>
         {state.connected && (
           <div className='nav'>
             <button onClick={() => setState({ ...state, view: 'home' })}>Home</button>
