@@ -51,6 +51,8 @@ function App() {
       console.log('address: ', address.toString())
       const auth = await _authContract.balanceOf(address);
       console.log('auth: ', auth.toString())
+      const getUserName = await _authContract.tokenName(address)
+      //setUserName(getUserName)
       await _signer.signMessage("Welcome to EthAuth!");
 
       let userDetails = {
@@ -339,7 +341,7 @@ function App() {
             {!state.createAccount && <p className='balance'>{parseInt(tokenBalance).toLocaleString()} <span>{tokenName}</span> shares</p>}
           </div>
         )}
-        {state.connected && <button className='disconnect' onClick={disconnect}>disconnect</button>}
+        {state.connected && <button className='disconnect' onClick={disconnect}>{tokenName}</button>}
         {state.connected && (
           <div className='nav'>
             <button onClick={() => setState({ ...state, view: 'home' })}>Home</button>
