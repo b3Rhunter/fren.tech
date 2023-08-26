@@ -54,14 +54,14 @@ function App() {
                 method: 'wallet_addEthereumChain',
                 params: [{
                   chainId: desiredChainId,
-                  chainName: 'Base Mainnet',
+                  chainName: 'Base',
                   nativeCurrency: {
                     name: 'ETH',
                     symbol: 'ETH',
                     decimals: 18
                   },
-                  rpcUrls: ['https://developer-access-mainnet.base.org'],
-                  blockExplorerUrls: ['https://basescan.org'],
+                  rpcUrls: ['https://goerli.base.org'], //https://mainnet.base.org
+                  blockExplorerUrls: ['https://goerli.basescan.org'], //https://basescan.org
                 }],
               });
             } catch (addError) {
