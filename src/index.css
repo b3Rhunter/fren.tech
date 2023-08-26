@@ -1,19 +1,37 @@
+:root {
+  --text: #f1f7fd;
+  --background: #02070e;
+  --primary: #539cea;
+  --secondary: #051629;
+  --accent: #1b7ade;
+}
+
 * {
   box-sizing: border-box;
   outline: none;
   text-decoration: none;
+  color: var(--text);
+  font-family: monospace;
 }
 
 button {
   cursor: pointer;
+  background-color: var(--secondary);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
   transition: 0.3s;
 }
 
 button:hover {
+  background-color: var(--primary);
+  color: var(--background);
   transform: translateY(-4px);
 }
 
 button:active {
+  background-color: var(--secondary);
+  color: var(--text);
   transform: translateY(4px);
 }
 
@@ -39,18 +57,15 @@ code {
   height: 100vh;
   width: 100%;
 
-  background-color: black;
-  color: white;
+  background-color: var(--background);
+  color: var(--text);
 }
 
 .connect-btn {
   width: 50%;
   padding: 0.75em 1em;
 
-  background-color: black;
-  color: white;
-
-  border: 1px solid white;
+  border: 1px solid var(--accent);
   border-radius: 50em;
   text-align: center;
 }
@@ -64,9 +79,9 @@ code {
   width: 90%;
   max-width: 767px;
   height: 450px;
-  border-radius: 1em;
+  border-radius: 3em;
 
-  border: 1px solid white;
+  border: 1px solid var(--accent);
 }
 
 .card-content {
@@ -84,10 +99,10 @@ code {
   width: 50%;
   padding: 0.75em 1em;
 
-  background-color: black;
-  color: white;
+  background-color: var(--background);
+  color: var(--text);
 
-  border: 1px solid white;
+  border: 1px solid var(--accent);
   border-radius: 50em;
   text-align: center;
 }
@@ -101,7 +116,7 @@ code {
   width: 100%;
   padding-inline: 50px;
   padding-block: 1em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.205);
+  border-bottom: 1px solid #1b79de48;
 }
 
 header {
@@ -125,15 +140,20 @@ header {
 }
 
 .nav button {
-  width: 125px;
+  min-width: 125px;
   padding: 0.75em 1em;
 
-  background-color: black;
-  color: white;
+  background-color: var(--secondary);
+  color: var(--text);
 
-  border: 1px solid white;
+  border: 1px solid var(--accent);
   border-radius: 50em;
   text-align: center;
+}
+
+.nav button:hover {
+  background-color: var(--primary);
+  color: var(--background);
 }
 
 .user-container {
@@ -153,17 +173,17 @@ header {
   width: 150px !important;
   padding: 0.75em 1em;
 
-  background-color: black;
-  color: white;
+  background-color: var(--secondary);
+  color: var(--text);
 
-  border: 1px solid white;
+  border: 1px solid var(--accent);
   border-radius: 50em;
   text-align: center;
 }
 
 .avatar {
   width: 50px;
-  border: 1px solid white;
+  border: 1px solid rgba(255, 255, 255, 0.219);
   border-radius: 50%;
 }
 
@@ -180,9 +200,9 @@ header {
 .create-account input[type="text"],
 .create-account label.file-upload,
 .create-account button {
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
+  background-color: var(--secondary);
+  color: var(--text);
+  border: 1px solid var(--accent);
   border-radius: 50em;
   text-align: center;
   width: 50%;
@@ -211,7 +231,7 @@ header {
 
 .user-avatar {
   width: 60px;
-  border: 1px solid white;
+  border: 1px solid rgba(255, 255, 255, 0.221);
   border-radius: 50%;
   position: fixed;
   top: 24px;
@@ -255,9 +275,9 @@ header {
 }
 
 .button {
-  background-color: black;
-  color: white;
+  background-color: var(--secondary);
+  color: var(--text);
   padding: 0.5em 1em;
-  border: 1px solid white;
+  border: 1px solid var(--accent);
   border-radius: 50em;
 }
