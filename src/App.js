@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ethers } from 'ethers';
 import ABI from './ABI.json';
 import TokenFactoryABI from './TokenFactoryABI.json';
 import TokenABI from './TokenABI.json';
 import { storage, db } from './firebase';
+import Posts from './Posts';
+import Account from './Account';
+import Frens from './Frens';
 
 const authAddress = "0x2491433486fB25CDEC54D26B0A907e084D42Ad13";
 const tokenFactoryAddress = "0xe9c73936406Bc6324CBaF7dB7065aB965FB918BB";
@@ -23,7 +27,7 @@ function App() {
     },
     createAccount: false,
     nfts: [],
-    view: 'home'
+    view: 'allUsers'
   };
 
   const [state, setState] = useState(initialState);
@@ -33,6 +37,7 @@ function App() {
   const [tokenAddress, setTokenAddress] = useState(null);
   const [allUserTokens, setAllUserTokens] = useState([]);
   const [tokenName, setTokenName] = useState(null);
+  const [reRenderFrens, setReRenderFrens] = useState(false);
 
   const connectWallet = async () => {
     try {
@@ -76,7 +81,7 @@ function App() {
       _provider = new ethers.providers.Web3Provider(window.ethereum);
       console.log('provider: ', _provider.toString())
       const _account = await _provider.send("eth_requestAccounts", []);
-      console.log('account: ', _account.toString())
+      console.log('account: ', _account[0].toString())
       const _signer = _provider.getSigner();
       console.log('signer: ', _signer.toString())
       const _authContract = new ethers.Contract(authAddress, ABI, _signer);
@@ -88,7 +93,7 @@ function App() {
       console.log('address: ', address.toString())
       const auth = await _authContract.balanceOf(address);
       console.log('auth: ', auth.toString())
-      const getUserName = await _authContract.tokenName(address)
+      //const getUserName = await _authContract.tokenName(address)
       //setUserName(getUserName)
       await _signer.signMessage("Welcome to Fren.Tech!");
 
@@ -101,8 +106,7 @@ function App() {
       if (!auth.eq(ethers.constants.Zero)) {
         userDetails.name = await _authContract.tokenName(address);
         userDetails.tokenURI = await _authContract.tokenURI(address);
-        
-        // Use the last address in the array
+
         const TokenContractAddressArray = await _tokenContract.getTokensByUser(address);
         const parseAddress = TokenContractAddressArray[TokenContractAddressArray.length - 1].toString();
         
@@ -156,16 +160,47 @@ function App() {
               tokenURI: await state.authContract.tokenURI(address),
               tokenId: address
             };
-
+            const authContract = new ethers.Contract(authAddress, ABI, state.signer);
             const fetchedNFTs = await fetchNFTs();
-
+            userDetails.name = await authContract.tokenName(address);
+            userDetails.tokenURI = await authContract.tokenURI(address);
+    
+            const TokenContractAddressArray = await tokenContract.getTokensByUser(address);
+            const parseAddress = TokenContractAddressArray[TokenContractAddressArray.length - 1].toString();
+            
+            setTokenAddress(parseAddress)
+            const userTokenContract = new ethers.Contract(parseAddress, TokenABI, state.signer);
+            const balance = await userTokenContract.balanceOf(address);
+            const _tokenName = await authContract.tokenName(address)
+            setTokenName(_tokenName)
+            const parseBalance = await ethers.utils.formatEther(balance.toString());
+            setTokenBalance(parseBalance.toString())
             setState({
               ...state,
               createAccount: false,
               userDetails,
               nfts: fetchedNFTs,
-              view: 'home'
+              view: 'allUsers'
             });
+
+            const totalSupply = await userTokenContract.totalSupply();
+            const parseTotalSupply = await ethers.utils.formatEther(totalSupply.toString());
+            const maxSupply = await userTokenContract.maxSupply();
+            const parseMaxSupply = await ethers.utils.formatEther(maxSupply.toString());
+            const priceForOneToken = await userTokenContract.getPrice("1");
+            const parsePriceForOneToken = await ethers.utils.formatEther(priceForOneToken.toString());
+            setAllUserTokens(prevTokens => [...prevTokens, {
+              tokenId: address,
+              address: parseAddress,
+              balance: parseBalance,
+              totalSupply: parseTotalSupply,
+              maxSupply: parseMaxSupply,
+              pricePerToken: parsePriceForOneToken
+            }]);            
+            setTokenBalance(parseBalance);
+            setTokenName(_tokenName);
+            setReRenderFrens(!reRenderFrens);
+
           } catch (error) {
             console.error("Minting failed:", error);
           }
@@ -217,6 +252,7 @@ function App() {
   };
 
   const fetchAllUserTokens = async (nfts) => {
+    console.log("fetchAllUserTokens called");
     if (!Array.isArray(nfts)) {
       console.warn("nfts is not an array:", nfts);
       return;
@@ -247,6 +283,8 @@ function App() {
         });
       }
       setAllUserTokens(allUserTokenDetails);
+      console.log("allUserTokens updated:", allUserTokenDetails);
+      console.log("fetchAllUserTokens finished");
     } catch (error) {
       console.error("Error fetching all user tokens:", error);
     }
@@ -267,7 +305,6 @@ function App() {
     }
   };
 
-
   const sellToken = async (tokenAddress, amount) => {
     try {
       const userTokenContract = new ethers.Contract(tokenAddress, TokenABI, state.signer);
@@ -278,7 +315,6 @@ function App() {
       console.error("Error selling tokens:", error);
     }
   };
-
 
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
@@ -297,14 +333,15 @@ function App() {
   };
 
   useEffect(() => {
-    const updateNFTsAndTokens = async () => {
-      const fetchedNFTs = await fetchNFTs();
-      setState(prevState => ({ ...prevState, nfts: fetchedNFTs }));
-      if (state.connected) {
+    if (state.connected && !state.createAccount) {
+      console.log("useEffect in App.js triggered");
+      const updateNFTsAndTokens = async () => {
+        const fetchedNFTs = await fetchNFTs();
+        setState(prevState => ({ ...prevState, nfts: fetchedNFTs }));
         fetchAllUserTokens(fetchedNFTs);
-      }
-    };
-    updateNFTsAndTokens();
+      };
+      updateNFTsAndTokens();
+    }
   }, [state.authContract, state.connected]);
 
   const renderContent = () => {
@@ -319,58 +356,13 @@ function App() {
           </label>
           <button onClick={handleMint}>Create Account</button>
         </div>
-
       );
     }
-
-    if (state.view === 'home') {
-      return (
-        <>
-          <h2>Welcome {state.userDetails.name}</h2>
-          <p>you have access!</p>
-        </>
-      );
-    }
-
-    if (state.view === 'allUsers') {
-      return (
-        <section className='user-container'>
-          {state.nfts.map((nft, index) => {
-            const userToken = allUserTokens.find(token => token.tokenId === ethers.utils.getAddress(nft.tokenId.toHexString())) || {};
-            return (
-              <div className='feed' key={index}>
-                <div className='feed-1'>
-                  <img style={{width: "50px", height: "50px"}} className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
-                  <h3 style={{fontSize: "18px"}}>{nft.tokenName}</h3>
-              </div>
-
-                {userToken && (
-                  <div className='token-details'>
-                    {/* <p>Token Address: <span className='address' onClick={() => truncateAndCopyAddress(userToken.address)} style={{ cursor: 'pointer' }}>{userToken.address.slice(0, 6) + "..."}</span></p> */}
-                    {/* <p>Token Balance: {parseInt(userToken.balance).toLocaleString() || '0'}</p> */}
-                    <p>Supply: {parseInt(userToken.totalSupply).toLocaleString() || '0'}</p>
-                    {/* <p>Max Supply: {parseInt(userToken.maxSupply).toLocaleString() || '0'}</p> */}
-                    <p>Price: {userToken.pricePerToken || '0'} ETH</p>
-                  </div>
-                )}
-                <div className='mint-button'>
-                  <button className='button' onClick={() => mintToken(userToken.address, 1)}>Buy</button>
-                  <button className='button' onClick={() => sellToken(userToken.address, 1)}>Sell</button>
-                </div>
-
-              </div>
-            );
-          })}
-        </section>
-      );
-    }
-
   };
 
   return (
     <div className="app">
       <header>
-        
         {!state.connected && <button className='disconnect' onClick={connectWallet}>connect</button>}
         {state.connected && (
           <div>
@@ -378,19 +370,28 @@ function App() {
             {!state.createAccount && <p className='balance'>{parseInt(tokenBalance).toLocaleString()} <span>{tokenName}</span> shares</p>}
           </div>
         )}
-        {state.connected && <button className='disconnect' onClick={disconnect}>{tokenName}</button>}
+        {state.connected && <button className='disconnect' onClick={disconnect}>{tokenName || "disconnect"}</button>}
         <h1>Fren.Tech</h1>
-        {state.connected && (
-          <div className='nav'>
-            <button onClick={() => setState({ ...state, view: 'home' })}>Home</button>
-            <button onClick={() => setState({ ...state, view: 'allUsers' })}>Frens</button>
-            <button onClick={handleBurn}>Delete Account</button>
-          </div>
-        )}
       </header>
+      <Router>
+      <div className='nav'>
+      {state.connected && (
+      <>
+      <Link to="/frens">Frens</Link>
+      <Link to="/posts">Following</Link>
+      <Link to="/account">Account</Link></>
+      )}
+      </div>
       <section className='card'>
-        {renderContent()}
+      {renderContent()}
+      <Routes>
+        <Route path="/" element={<Posts />} />
+        <Route path="/account" element={<Account state={state} handleBurn={handleBurn} handleImageChange={handleImageChange} setState={setState} />} />
+        <Route path="/posts" element={<Posts />} />
+        <Route path="/frens" element={<Frens state={state} allUserTokens={allUserTokens} ethers={ethers} mintToken={mintToken} sellToken={sellToken} reRenderFrens={reRenderFrens} />} />
+      </Routes>
       </section>
+    </Router>
     </div>
   );
 }

@@ -104,8 +104,8 @@ code {
   max-width: 767px;
   height: 490px;
   border-radius: 3em;
-  margin-top: 140px;
   border: 1px solid var(--accent);
+  margin-bottom: 2em;
 }
 
 .card-content {
@@ -155,6 +155,7 @@ header {
   padding-top: 2em;
   position: fixed;
   top: 0;
+  z-index: 999;
 }
 
 .nav {
@@ -166,12 +167,13 @@ header {
   gap: 50px;
   flex-grow: 1;
   width: 100%;
-  margin-top: 45px;
-  margin-bottom: 50px;
+  max-height: 75px;
+  margin-top: 40px;
+  margin-bottom: 20px;
   z-index: 99;
 }
 
-.nav button {
+.nav button, .nav a {
   min-width: 125px;
   padding: 0.75em 1em;
 
@@ -183,9 +185,26 @@ header {
   text-align: center;
 }
 
-.nav button:hover {
+.nav button:hover, .nav a:hover {
   background-color: var(--primary);
   color: var(--background);
+}
+
+.nav a:active {
+  background-color: var(--secondary);
+  color: var(--text);
+  box-shadow: var(--shadow-elevation-medium);
+  transform: translateY(4px);
+}
+
+.nav a {
+  box-shadow: var(--shadow-elevation-medium);
+  transition: 0.3s;
+}
+
+.nav a:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevation-high);
 }
 
 .user-container {
@@ -204,7 +223,7 @@ header {
   right: 24px;
   width: 150px !important;
   padding: 0.75em 1em;
-  z-index: 999;
+  z-index: 9999 !important;
   background-color: var(--secondary);
   color: var(--text);
 
@@ -227,6 +246,12 @@ header {
   height: 100%;
   width: 100%;
   gap: 30px;
+
+  position: fixed;
+  top: 0;
+  z-index: 99;
+
+  background-color: var(--background);
 }
 
 .create-account input[type="text"],
@@ -331,4 +356,39 @@ header {
 h1 {
   margin: 0;
   padding: 0;
+}
+
+.account-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  height: 100%;
+  width: 100%;
+}
+
+.account-container input[type="text"],
+.account-container label.file-upload,
+.account-container button {
+  background-color: var(--secondary);
+  color: var(--text);
+  border: 1px solid #1b79de44;
+  border-radius: 50em;
+  text-align: center;
+  width: 50%;
+  padding: 0.75em 1em;
+}
+
+.account-container label.file-upload {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.account-container label.file-upload:hover {
+  transform: translateY(-4px);
+}
+
+.account-container input[type="file"] {
+  display: none;
 }
