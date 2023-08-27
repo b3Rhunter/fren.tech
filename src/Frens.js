@@ -26,7 +26,7 @@ function Frens({state, allUserTokens, ethers, mintToken, sellToken, reRenderFren
                 {userToken && (
                   <div className='token-details'>
                     {/* <p>Token Address: <span className='address' onClick={() => truncateAndCopyAddress(userToken.address)} style={{ cursor: 'pointer' }}>{userToken.address.slice(0, 6) + "..."}</span></p> */}
-                    {/* <p>Token Balance: {parseInt(userToken.balance).toLocaleString() || '0'}</p> */}
+                    <p>Owned: {parseInt(userToken.balance).toLocaleString() || '0'}</p>
                     <p>Supply: {parseInt(userToken.totalSupply).toLocaleString() || '0'}</p>
                     {/* <p>Max Supply: {parseInt(userToken.maxSupply).toLocaleString() || '0'}</p> */}
                     <p>Price: {userToken.pricePerToken || '0'} ETH</p>

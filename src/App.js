@@ -260,12 +260,13 @@ function App() {
     try {
       const allUserTokenDetails = [];
       for (const nft of nfts) {
+        const address = state.signer.getAddress()
         const userAddressBigNumber = ethers.BigNumber.from(nft.tokenId);
         const userAddress = ethers.utils.getAddress(userAddressBigNumber.toHexString());
         const TokenContractAddressArray = await tokenContract.getTokensByUser(userAddress);
         const parseAddress = TokenContractAddressArray[TokenContractAddressArray.length - 1].toString();
         const userTokenContract = new ethers.Contract(parseAddress, TokenABI, state.signer);
-        const balance = await userTokenContract.balanceOf(userAddress);
+        const balance = await userTokenContract.balanceOf(address);
         const parseBalance = await ethers.utils.formatEther(balance.toString());
         const totalSupply = await userTokenContract.totalSupply();
         const parseTotalSupply = await ethers.utils.formatEther(totalSupply.toString());
@@ -367,7 +368,6 @@ function App() {
         {state.connected && (
           <div>
             {!state.createAccount && <img className='user-avatar' src={state.userDetails.tokenURI} alt='avatar' />}
-            {!state.createAccount && <p className='balance'>{parseInt(tokenBalance).toLocaleString()} <span>{tokenName}</span> shares</p>}
           </div>
         )}
         {state.connected && <button className='disconnect' onClick={disconnect}>{tokenName || "disconnect"}</button>}
