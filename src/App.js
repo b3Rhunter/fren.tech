@@ -200,7 +200,6 @@ function App() {
             setTokenBalance(parseBalance);
             setTokenName(_tokenName);
             setReRenderFrens(!reRenderFrens);
-
           } catch (error) {
             console.error("Minting failed:", error);
           }
@@ -298,13 +297,47 @@ function App() {
       const parseGetPrice = Number(ethers.utils.formatEther(getPrice))
       const fees = Number("0.001")
       const pricePerToken = parseGetPrice + fees;
-      const parsePrice = ethers.utils.parseEther(pricePerToken.toString())
+      const roundedPricePerToken = parseFloat(pricePerToken.toFixed(18));
+      const parsePrice = ethers.utils.parseEther(roundedPricePerToken.toString());
       const tx = await userTokenContract.buy(amount, { value: parsePrice.toString() });
       await tx.wait();
+      updateAllUserTokens();
+      setReRenderFrens(prev => !prev);
     } catch (error) {
       console.error("Error minting tokens:", error);
     }
   };
+
+  const updateAllUserTokens = async () => {
+    try {
+      const newAllUserTokens = await Promise.all(allUserTokens.map(async (token) => {
+        const address = state.signer.getAddress()
+        const userTokenContract = new ethers.Contract(token.address, TokenABI, state.signer);
+        const balance = await userTokenContract.balanceOf(address);
+        console.log('balance: ',balance)
+        const parseBalance = ethers.utils.formatEther(balance.toString());
+        console.log('parsed balance', parseBalance)
+        const totalSupply = await userTokenContract.totalSupply();
+        console.log('total supply: ', totalSupply)
+        const parseTotalSupply = ethers.utils.formatEther(totalSupply.toString());
+        console.log('parsed supply: ', parseTotalSupply)
+        const priceForOneToken = await userTokenContract.getPrice("1");
+        console.log('price: ', priceForOneToken)
+        const parsePriceForOneToken = ethers.utils.formatEther(priceForOneToken.toString());
+        console.log('parsed price: ', parsePriceForOneToken)
+        return {
+          ...token,
+          balance: parseBalance,
+          totalSupply: parseTotalSupply,
+          pricePerToken: parsePriceForOneToken
+        };
+      }));
+      setAllUserTokens(newAllUserTokens);
+    } catch (error) {
+      console.error("Error updating all user tokens:", error);
+    }
+  };
+  
 
   const sellToken = async (tokenAddress, amount) => {
     try {
@@ -312,6 +345,8 @@ function App() {
       const fees = ethers.utils.parseEther("0.001")
       const tx = await userTokenContract.sell(amount, { value: fees.toString() });
       await tx.wait();
+      updateAllUserTokens();
+      setReRenderFrens(prev => !prev);
     } catch (error) {
       console.error("Error selling tokens:", error);
     }
