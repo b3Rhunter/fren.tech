@@ -114,6 +114,20 @@ header img {
   left: 12px;
 }
 
+.connect-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.connect-btn {
+  font-size: 18px;
+  width: 150px;
+}
+
 .disconnect-btn {
   position: fixed;
   top: 24px;

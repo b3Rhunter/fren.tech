@@ -407,7 +407,7 @@ function App() {
 
   return (
     <div className="app">
-        {!state.connected && <button onClick={connect} className='connect-btn'>connect</button>}
+        {!state.connected && <div className='connect-container'><button onClick={connect} className='connect-btn'>connect</button></div>}
       <Router>
       {state.connected && (
       <>
