@@ -25,12 +25,11 @@ function Posts({state, allUserTokens = []}) {
       console.warn("allUserTokens is not an array:", allUserTokens);
       return [];
     }
-  
     console.log("All User Tokens:", allUserTokens);  // Debugging
     return posts.filter(post => {
       const hasToken = allUserTokens.some(token => {
         console.log(`Comparing ${token.tokenId} with ${post.user}`);  // Debugging
-        return token.tokenId === post.user;
+        return token.tokenId === post.user && parseFloat(token.balance) > 0;  // Check if balance is greater than zero
       });
       console.log(`Post by ${post.user} will be shown: ${hasToken}`);  // Debugging
       return hasToken;
