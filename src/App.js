@@ -431,7 +431,7 @@ function App() {
                 </>
                 )}
                 </div>
-                <h1>Fren.Tech</h1>
+                <h1>BestFren.Tech</h1>
                 {state.connected && <button onClick={disconnect} className='disconnect-btn'>disconnect</button>}
               </header>
               {!state.createAccount && (
