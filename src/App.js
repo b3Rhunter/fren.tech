@@ -100,7 +100,7 @@ function App() {
       setEthBalance(parseEthBalance)
       //const getUserName = await _authContract.tokenName(address)
       //setUserName(getUserName)
-      await _signer.signMessage("Welcome to Fren.Tech!");
+      await _signer.signMessage("Welcome to BestFren.Tech!");
 
       let userDetails = {
         name: '',
@@ -134,7 +134,7 @@ function App() {
         userDetails,
         createAccount: auth.eq(ethers.constants.Zero)
       });
-      showNotification("Welcome to Fren.Tech");
+      showNotification("Welcome to BestFren.Tech");
     } catch(error) {
       console.log(error)
     }
