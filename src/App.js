@@ -9,6 +9,7 @@ import Posts from './components/Posts';
 import Account from './components/Account';
 import Frens from './components/Frens';
 import NewPost from './components/NewPost';
+import CreateAccount from './components/CreateAccount';
 import Notification from './components/Notification';
 import { AiFillHome } from 'react-icons/ai';
 import { ImFeed } from 'react-icons/im';
@@ -406,47 +407,48 @@ function App() {
 
   return (
     <div className="app">
-      <div className='login-container'>
         {!state.connected && <button onClick={connect} className='connect-btn'>connect</button>}
-        {state.createAccount && (
-         <div className='create-account'>
-           <input type="text" placeholder="choose user name..." value={state.userDetails.name} onChange={(e) => setState({ ...state, userDetails: { ...state.userDetails, name: e.target.value } })} />
-           <label className="file-upload">
-             <input className='upload' type="file" onChange={handleImageChange} />
-             <span>Upload Profile Picture</span>
-           </label>
-           <button onClick={handleMint}>Create Account</button>
-         </div>
-        )}
-      </div>
       <Router>
       {state.connected && (
       <>
           <nav>
-            <Link to="/frens"><AiFillHome/></Link>
-            <Link to="/posts"><ImFeed/></Link>
-            <Link to="/account"><BsFillPersonFill/></Link>
+          {!state.createAccount && (
+            <>
+            <Link to="/frens"><AiFillHome /></Link>
+            <Link to="/posts"><ImFeed /></Link>
+            <Link to="/account"><BsFillPersonFill /></Link>
+            </>
+          )}
           </nav>
           
           <div className='content'>
               <header>
                 <div className='user'>
+                {!state.createAccount && (
+                <>
                 <img className='user-avatar' src={state.userDetails.tokenURI} alt='avatar' />
                 <p className='user-balance'>{parseFloat(ethBalance).toFixed(4)} ETH</p>
+                </>
+                )}
                 </div>
                 <h1>Fren.Tech</h1>
                 {state.connected && <button onClick={disconnect} className='disconnect-btn'>disconnect</button>}
               </header>
-
+              {!state.createAccount && (
               <div className='create-post-container'>
               <NewPost state={state}/>
               </div>
+              )}
+
 
               <main>
+              {state.createAccount && (
+                <CreateAccount state={state} setState={setState} handleImageChange={handleImageChange} handleMint={handleMint} />
+              )}
                 <Routes>
                   <Route path="/" element={<Posts />} />
                   <Route path="/account" element={<Account state={state} handleBurn={handleBurn} handleImageChange={handleImageChange} setState={setState} />} />
-                  <Route path="/posts" element={<Posts state={state} allUserTokens={allUserTokens} ethers={ethers} mintToken={mintToken} sellToken={sellToken} reRenderFrens={reRenderFrens}/>} />
+                  <Route path="/posts" element={allUserTokens.length > 0 ? <Posts state={state} allUserTokens={allUserTokens} ethers={ethers}/> : <div>{!state.createAccount && <p>Loading...</p>}</div>} fetchAllUserTokens={fetchAllUserTokens}/>
                   <Route path="/frens" element={<Frens state={state} allUserTokens={allUserTokens} ethers={ethers} mintToken={mintToken} sellToken={sellToken} reRenderFrens={reRenderFrens} />} />
                 </Routes>
               </main>
