@@ -1,0 +1,25 @@
+.notification-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #02070e;
+    color: #f1f7fd;
+    border: 1px solid rgba(255, 255, 255, 0.203);
+    padding: 15px 30px;
+    border-radius: 1em;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transform: translateY(100%);
+    opacity: 0;
+    max-width: 300px;
+    word-wrap: break-word;
+    font-size: 1em;
+    z-index: 9999;
+  }
+  
+  .notification-container.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  
