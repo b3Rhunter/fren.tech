@@ -222,8 +222,7 @@ main {
 
 .frens-posts img {
   width: 250px;
-  border-radius: 1em;
-  border: 1px solid rgba(255, 255, 255, 0.21);
+
 }
 
 .token-details {
@@ -383,17 +382,21 @@ main {
   margin-bottom: 20px;
   max-width: 250px;
   max-height: 250px;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 1em;
+  border: 1px solid rgba(255, 255, 255, 0.21);
 }
 
 .embeddedImage {
   max-width: 250px;
   max-height: 250px;
-  object-fit: contain;
+  object-fit: cover;
   margin-top: 30px;
   display: block;
   margin-left: auto;
   margin-right: auto;
+  border-radius: 1em;
+  border: 1px solid rgba(255, 255, 255, 0.21);
 }
 
 
