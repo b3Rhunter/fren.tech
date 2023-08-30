@@ -37,6 +37,13 @@ function Posts({state, allUserTokens = []}) {
   
   const filteredPosts = filterPostsByTokenHolders();
 
+  const renderDescriptionWithImages = (description) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return description.replace(urlRegex, (url) => {
+      return `<img src="${url}" alt="embedded image" class="embeddedImage" />`;
+    });
+  };
+
   return(
       <div className="posts-container">
 {filteredPosts.map((post) => {
@@ -52,8 +59,8 @@ function Posts({state, allUserTokens = []}) {
         </>
       )}
       <div className="post-content">
-      <p>{post.description}</p>
-      {post.image && <img className="postImage" src={post.image} alt="user post" />}
+        <p dangerouslySetInnerHTML={{ __html: renderDescriptionWithImages(post.description) }}></p>
+        {post.image && <img className="postImage" src={post.image} alt="user post" />}
       </div>
     </div>
   );
