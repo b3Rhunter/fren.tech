@@ -450,6 +450,56 @@ main {
 
 }
 
+.comment-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.comment-input {
+  background-color: var(--background);
+  color: var(--text);
+  outline: none;
+  border: none;
+  padding-block: 1em;
+  width: calc(100% - 100px);
+  margin-block: 1em;
+}
+
+.comment-btn {
+  width: 100px;
+  margin-block: 1em;
+}
+
+.existing-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.react-btns {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 100px;
+  width: 100%;
+}
+
+.open-comments {
+  border: none !important;
+  font-size: 18px;
+  width: auto;
+  margin-top: 20px;
+}
+
+.open-comments:hover {
+  background-color: var(--background);
+  color: var(--text);
+  border: none;
+}
 
 @media screen and (max-width: 767px) {
   
