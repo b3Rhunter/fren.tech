@@ -3,6 +3,9 @@ import { collection, doc, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { db, storage } from "../firebase";
 import { BiImageAdd } from 'react-icons/bi';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
+
 
 
 const NewPost = ({state}) => {
@@ -35,6 +38,7 @@ const NewPost = ({state}) => {
       description,
       user: uid,
       username: name,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     };
   
     if (image) {

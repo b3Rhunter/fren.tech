@@ -25,15 +25,15 @@ function Posts({state, allUserTokens = []}) {
       console.warn("allUserTokens is not an array:", allUserTokens);
       return [];
     }
-    return posts.filter(post => {
+    const filtered = posts.filter(post => {
       const hasToken = allUserTokens.some(token => {
-        //console.log('posts: ', post)
-        console.log('username: ',post.username, 'post image: ',post.image)
         return token.tokenId === post.user && parseFloat(token.balance) > 0;
       });
       return hasToken;
     });
+    return filtered.sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds);
   };
+  
   
   const filteredPosts = filterPostsByTokenHolders();
 
