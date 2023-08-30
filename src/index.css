@@ -381,6 +381,9 @@ main {
 .postImage {
   margin-top: 10px;
   margin-bottom: 20px;
+  max-width: 250px;
+  max-height: 250px;
+  object-fit: contain;
 }
 
 .post-content p {
@@ -587,4 +590,45 @@ main {
 ::-webkit-scrollbar-thumb:hover {
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.678);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes colorChange {
+  0% {
+    fill: #12aee2;
+  }
+  50% {
+    fill: #0d5a7d;
+  }
+  100% {
+    fill: #12aee2;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.eth-logo {
+  animation: 
+    pulse 2s infinite ease-in-out,
+    rotate 10s infinite linear,
+    colorChange 5s infinite ease-in-out;
 }

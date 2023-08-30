@@ -11,6 +11,7 @@ import Frens from './components/Frens';
 import NewPost from './components/NewPost';
 import CreateAccount from './components/CreateAccount';
 import Notification from './components/Notification';
+import LoadingScreen from './components/LoadingScreen';
 import { AiFillHome } from 'react-icons/ai';
 import { ImFeed } from 'react-icons/im';
 import { BsFillPersonFill } from 'react-icons/bs';
@@ -47,6 +48,7 @@ function App() {
   const [ethBalance, setEthBalance] = useState("0");
   const [createPost, setCreatePost] = useState(false);
   const [notification, setNotification] = useState({ message: '', show: false });
+  const [isLoading, setIsLoading] = useState(true);
 
   const connect = async () => {
     try {
@@ -209,6 +211,7 @@ function App() {
             setTokenBalance(parseBalance);
             setTokenName(_tokenName);
             setReRenderFrens(!reRenderFrens);
+            showNotification("Account Created!");
           } catch (error) {
             console.error("Minting failed:", error);
           }
@@ -238,6 +241,7 @@ function App() {
       });
 
       setState({ ...state, createAccount: true, userDetails: { ...state.userDetails, tokenURI: '' } });
+      showNotification("Account deleted...");
     } catch (error) {
       console.error("Burning failed:", error);
     }
@@ -317,6 +321,7 @@ function App() {
       setEthBalance(parseEthBalance)
       updateAllUserTokens();
       setReRenderFrens(prev => !prev);
+      showNotification("Purchased!");
     } catch (error) {
       console.error("Error minting tokens:", error);
     }
@@ -363,6 +368,7 @@ function App() {
       setEthBalance(parseEthBalance)
       updateAllUserTokens();
       setReRenderFrens(prev => !prev);
+      showNotification("Sold!");
     } catch (error) {
       console.error("Error selling tokens:", error);
     }
@@ -372,11 +378,13 @@ function App() {
     if (e.target.files[0]) {
       setImage(e.target.files[0]);
     }
+    showNotification("image uploaded...");
   };
 
   const truncateAndCopyAddress = (tokenAddress) => {
     const truncatedAddress = tokenAddress.slice(0, 6) + "...";
     navigator.clipboard.writeText(tokenAddress);
+    showNotification("copied...");
     return truncatedAddress;
   };
 
@@ -395,11 +403,13 @@ function App() {
 
   useEffect(() => {
     if (state.connected && !state.createAccount) {
+      setIsLoading(true)
       console.log("useEffect in App.js triggered");
       const updateNFTsAndTokens = async () => {
         const fetchedNFTs = await fetchNFTs();
         setState(prevState => ({ ...prevState, nfts: fetchedNFTs }));
         fetchAllUserTokens(fetchedNFTs);
+        setIsLoading(false);
       };
       updateNFTsAndTokens();
     }

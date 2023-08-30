@@ -13,6 +13,7 @@ const NewPost = ({state}) => {
   const handleImageUpload = (e) => {
     if (e.target.files[0]) {
       setImage(e.target.files[0]);
+      console.log('file uploaded: ',e.target.files[0])
     }
   };
 
@@ -20,9 +21,9 @@ const NewPost = ({state}) => {
     e.preventDefault();
     setUploading(true);
   
-    const address = await state.signer.getAddress();  // Await the address
-    const uid = address.toString();  // Convert to string
-    const name = state.userDetails.name;  // No need to await this
+    const address = await state.signer.getAddress();
+    const uid = address.toString();
+    const name = state.userDetails.name;
   
     if (!uid || !name) {
       console.error("UID or username is undefined");
@@ -40,26 +41,28 @@ const NewPost = ({state}) => {
       const storageRef = ref(storage, `images/${image.name}`);
       const uploadTask = uploadBytesResumable(storageRef, image);
   
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          // Handle progress, error, and complete states here
-        }, 
-        (error) => {
-          console.log(error);
-        }, 
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          post.image = downloadURL;
-        }
-      );
+      await new Promise((resolve, reject) => {
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            // Handle progress, error, and complete states here
+          }, 
+          (error) => {
+            console.log(error);
+            reject(error);
+          }, 
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            post.image = downloadURL;
+            resolve();
+          }
+        );
+      });
     }
   
     await setDoc(postRef, post);
     setUploading(false);
   };
   
-  
-
   return (
     <div className="create-post">
       <form className="post-form" onSubmit={handleNewPost}>

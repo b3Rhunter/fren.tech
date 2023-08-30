@@ -21,45 +21,44 @@ function Posts({state, allUserTokens = []}) {
   };
 
   const filterPostsByTokenHolders = () => {
-    if (!Array.isArray(allUserTokens)) {  // Check if allUserTokens is an array
+    if (!Array.isArray(allUserTokens)) {
       console.warn("allUserTokens is not an array:", allUserTokens);
       return [];
     }
-    console.log("All User Tokens:", allUserTokens);  // Debugging
     return posts.filter(post => {
       const hasToken = allUserTokens.some(token => {
-        console.log(`Comparing ${token.tokenId} with ${post.user}`);  // Debugging
-        return token.tokenId === post.user && parseFloat(token.balance) > 0;  // Check if balance is greater than zero
+        //console.log('posts: ', post)
+        console.log('username: ',post.username, 'post image: ',post.image)
+        return token.tokenId === post.user && parseFloat(token.balance) > 0;
       });
-      console.log(`Post by ${post.user} will be shown: ${hasToken}`);  // Debugging
       return hasToken;
     });
   };
   
-
   const filteredPosts = filterPostsByTokenHolders();
 
   return(
       <div className="posts-container">
-    {filteredPosts.map((post) => {
-      const nft = findNFTByUsername(post.username);
-      return (
-        <div className="frens-posts" key={post.id}>
-          {nft && (
-            <>
-            <div className="user-post">
-              <img style={{width: "50px", height: "50px"}} className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
-              <h3 style={{fontSize: "18px"}}>{nft.tokenName}</h3>
-            </div>
-            </>
-          )}
-          <div className="post-content">
-          <p>{post.description}</p>
-          {post.image && <img className="postImage" src={post.image} alt="user post" />}
-          </div>
+{filteredPosts.map((post) => {
+  const nft = findNFTByUsername(post.username);
+  return (
+    <div className="frens-posts" key={post.id}>
+      {nft && (
+        <>
+        <div className="user-post">
+          <img style={{width: "50px", height: "50px"}} className='avatar' src={nft.tokenURI} alt={nft.tokenName} />
+          <h3 style={{fontSize: "18px"}}>{nft.tokenName}</h3>
         </div>
-      );
-    })}
+        </>
+      )}
+      <div className="post-content">
+      <p>{post.description}</p>
+      {post.image && <img className="postImage" src={post.image} alt="user post" />}
+      </div>
+    </div>
+  );
+})}
+
       </div>
   );
 }
