@@ -16,8 +16,8 @@ import { AiFillHome } from 'react-icons/ai';
 import { ImFeed } from 'react-icons/im';
 import { BsFillPersonFill } from 'react-icons/bs';
 
-const authAddress = "0x2491433486fB25CDEC54D26B0A907e084D42Ad13";
-const sharePrinterAddress = "0xe9c73936406Bc6324CBaF7dB7065aB965FB918BB";
+const authAddress = "0x49D3AE953A4C8D4Ab22016ccE50CbbFbde85810D";
+const sharePrinterAddress = "0x02E1EA569CCfCE9C20BE85BB8697939ff1873A10";
 
 function App() {
 
@@ -56,7 +56,7 @@ function App() {
       _provider = new ethers.providers.Web3Provider(window.ethereum);
       await _provider.send("eth_requestAccounts", []);
       const network = await _provider.getNetwork();
-      const desiredChainId = '0x14A33';  //base mainnet 0x2105
+      const desiredChainId = '0x2105';  //base mainnet 0x2105
       if (network.chainId !== parseInt(desiredChainId)) {
         try {
           await window.ethereum.request({
@@ -76,8 +76,8 @@ function App() {
                     symbol: 'ETH',
                     decimals: 18
                   },
-                  rpcUrls: ['https://goerli.base.org'], //https://mainnet.base.org
-                  blockExplorerUrls: ['https://goerli.basescan.org'], //https://basescan.org
+                  rpcUrls: ['https://mainnet.base.org'], //https://mainnet.base.org
+                  blockExplorerUrls: ['https://basescan.org'], //https://basescan.org
                 }],
               });
             } catch (addError) {

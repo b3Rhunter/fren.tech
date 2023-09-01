@@ -92,7 +92,7 @@ function Posts({ state, allUserTokens = [] }) {
             </div>
             <div className="react-btns"> 
             <button className="open-comments" onClick={() => toggleComments(post.id)}><FaRegCommentDots/></button>
-            <button className="open-comments"><AiFillHeart/></button>
+            {/* <button className="open-comments"><AiFillHeart/></button> */}
             </div>
             {showComments[post.id] && (
               <div className="comment-section">
