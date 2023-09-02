@@ -103,7 +103,7 @@ function Posts({ state, allUserTokens = [] }) {
                 />
 
                 <div className="existing-comments">
-                  {comments[post.id]?.map((comment, index) => (
+                  {comments[post.id]?.slice(0).reverse().map((comment, index) => (
                     <div key={index}>
                       <p><strong>{comment.username}</strong>: {comment.text}</p>
                     </div>

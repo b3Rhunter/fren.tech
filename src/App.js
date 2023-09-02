@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ethers } from 'ethers';
+import { collection, onSnapshot } from "firebase/firestore";
 import ABI from './ABIs/ABI.json';
 import TokenFactoryABI from './ABIs/TokenFactoryABI.json';
 import TokenABI from './ABIs/TokenABI.json';
@@ -10,9 +11,10 @@ import Account from './components/Account';
 import Frens from './components/Frens';
 import NewPost from './components/NewPost';
 import CreateAccount from './components/CreateAccount';
+import Alerts from './components/Alerts';
 import Notification from './components/Notification';
 import Loading from './components/Loading';
-import { AiFillHome } from 'react-icons/ai';
+import { AiFillHome, AiFillBell } from 'react-icons/ai';
 import { ImFeed } from 'react-icons/im';
 import { BsFillPersonFill } from 'react-icons/bs';
 
@@ -48,6 +50,7 @@ function App() {
   const [ethBalance, setEthBalance] = useState("0");
   const [createPost, setCreatePost] = useState(false);
   const [notification, setNotification] = useState({ message: '', show: false });
+  const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const connect = async () => {
@@ -410,6 +413,7 @@ function App() {
   };
 
   useEffect(() => {
+    let unsubscribePosts, unsubscribeComments;
     if (state.connected && !state.createAccount) {
       setIsLoading(true)
       console.log("useEffect in App.js triggered");
@@ -421,7 +425,40 @@ function App() {
       };
       updateNFTsAndTokens();
     }
+
+    
   }, [state.authContract, state.connected]);
+
+  useEffect(() => {
+    const unsubscribePosts = onSnapshot(collection(db, "posts"), (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const hasToken = allUserTokens.some(token => {
+            return token.tokenId === change.doc.data().user && parseFloat(token.balance) > 0;
+          });
+          if (hasToken) {
+            setNotifications(prev => [...prev, `New post from ${change.doc.data().username}`]);
+          }
+        }
+      });
+    });
+  
+    const unsubscribeComments = onSnapshot(collection(db, "comments"), (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          if (change.doc.data().username === state.userDetails.name) {
+            setNotifications(prev => [...prev, `New comment from ${change.doc.data().username} on your post`]);
+          }
+        }
+      });
+    });
+  
+    return () => {
+      unsubscribePosts();
+      unsubscribeComments();
+    };
+  }, [state.userDetails.name, allUserTokens]);
+  
 
   return (
     <div className="app">
@@ -435,6 +472,7 @@ function App() {
             <>
             <Link to="/frens"><AiFillHome /></Link>
             <Link to="/posts"><ImFeed /></Link>
+            <Link to='/alerts'><AiFillBell/></Link>
             <Link to="/account"><BsFillPersonFill /></Link>
             </>
           )}
@@ -459,16 +497,16 @@ function App() {
               </div>
               )}
 
-
               <main>
               {state.createAccount && (
                 <CreateAccount state={state} setState={setState} handleImageChange={handleImageChange} handleMint={handleMint} />
               )}
                 <Routes>
-                  <Route path="/" element={<Posts />} />
+                  <Route path="/" element={<Frens state={state} allUserTokens={allUserTokens} ethers={ethers} mintToken={mintToken} sellToken={sellToken} reRenderFrens={reRenderFrens} />} />
                   <Route path="/account" element={<Account state={state} setIsLoading={setIsLoading} handleBurn={handleBurn} handleImageChange={handleImageChange} setState={setState} />} />
                   <Route path="/posts" element={allUserTokens.length > 0 ? <Posts state={state} allUserTokens={allUserTokens} ethers={ethers}/> : <div>{!state.createAccount && <p>Loading...</p>}</div>} fetchAllUserTokens={fetchAllUserTokens}/>
                   <Route path="/frens" element={<Frens state={state} allUserTokens={allUserTokens} ethers={ethers} mintToken={mintToken} sellToken={sellToken} reRenderFrens={reRenderFrens} />} />
+                  <Route path="/alerts" element={<Alerts notifications={notifications} />} />
                 </Routes>
               </main>
             </div>
