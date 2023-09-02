@@ -466,7 +466,7 @@ function App() {
               )}
                 <Routes>
                   <Route path="/" element={<Posts />} />
-                  <Route path="/account" element={<Account state={state} handleBurn={handleBurn} handleImageChange={handleImageChange} setState={setState} />} />
+                  <Route path="/account" element={<Account state={state} setIsLoading={setIsLoading} handleBurn={handleBurn} handleImageChange={handleImageChange} setState={setState} />} />
                   <Route path="/posts" element={allUserTokens.length > 0 ? <Posts state={state} allUserTokens={allUserTokens} ethers={ethers}/> : <div>{!state.createAccount && <p>Loading...</p>}</div>} fetchAllUserTokens={fetchAllUserTokens}/>
                   <Route path="/frens" element={<Frens state={state} allUserTokens={allUserTokens} ethers={ethers} mintToken={mintToken} sellToken={sellToken} reRenderFrens={reRenderFrens} />} />
                 </Routes>

@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { storage } from '../firebase';
 
-function Account({ handleBurn, state, setState }) {
+function Account({ handleBurn, state, setState, setIsLoading }) {
   const [newUsername, setNewUsername] = useState('');
   const [newImage, setNewImage] = useState(null);
 
   const updateUsername = async () => {
+    setIsLoading(true)
     try {
       const address = await state.signer.getAddress();
       const tx = await state.authContract.changeTokenName(address, newUsername);
       await tx.wait();
+      setIsLoading(false)
     } catch (error) {
+      setIsLoading(false)
       console.log(error);
     }
   };
@@ -26,7 +29,7 @@ function Account({ handleBurn, state, setState }) {
       alert('Please select an image.');
       return;
     }
-
+    setIsLoading(true)
     const uploadTask = storage.ref(`images/${newImage.name}`).put(newImage);
     uploadTask.on(
       'state_changed',
@@ -41,7 +44,9 @@ function Account({ handleBurn, state, setState }) {
           const address = await state.signer.getAddress();
           const tx = await state.authContract.changeTokenURI(address, downloadURL);
           await tx.wait();
+          setIsLoading(false)
         } catch (error) {
+          setIsLoading(false)
           console.log(error);
         }
       }
