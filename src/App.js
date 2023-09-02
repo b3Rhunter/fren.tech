@@ -11,7 +11,7 @@ import Frens from './components/Frens';
 import NewPost from './components/NewPost';
 import CreateAccount from './components/CreateAccount';
 import Notification from './components/Notification';
-import LoadingScreen from './components/LoadingScreen';
+import Loading from './components/Loading';
 import { AiFillHome } from 'react-icons/ai';
 import { ImFeed } from 'react-icons/im';
 import { BsFillPersonFill } from 'react-icons/bs';
@@ -48,9 +48,10 @@ function App() {
   const [ethBalance, setEthBalance] = useState("0");
   const [createPost, setCreatePost] = useState(false);
   const [notification, setNotification] = useState({ message: '', show: false });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const connect = async () => {
+    setIsLoading(true)
     try {
       let _provider;
       _provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -137,7 +138,9 @@ function App() {
         createAccount: auth.eq(ethers.constants.Zero)
       });
       showNotification("Welcome to BestFren.Tech");
+      setIsLoading(false)
     } catch(error) {
+      setIsLoading(false)
       console.log(error)
     }
   }
@@ -148,6 +151,7 @@ function App() {
       return;
     }
     if (image) {
+      setIsLoading(true)
       const uploadTask = storage.ref(`images/${image.name}`).put(image);
       uploadTask.on(
         'state_changed',
@@ -212,7 +216,10 @@ function App() {
             setTokenName(_tokenName);
             setReRenderFrens(!reRenderFrens);
             showNotification("Account Created!");
+            setIsLoading(false)
           } catch (error) {
+            showNotification("Minting failed: ", error);
+            setIsLoading(false)
             console.error("Minting failed:", error);
           }
         }
@@ -223,6 +230,7 @@ function App() {
   };
 
   const handleBurn = async () => {
+    setIsLoading(true)
     try {
       const url = new URL(state.userDetails.tokenURI);
       const decodedPathname = decodeURIComponent(url.pathname);
@@ -242,7 +250,10 @@ function App() {
 
       setState({ ...state, createAccount: true, userDetails: { ...state.userDetails, tokenURI: '' } });
       showNotification("Account deleted...");
+      setIsLoading(false)
     } catch (error) {
+      setIsLoading(false)
+      showNotification("Burning failed:", error);
       console.error("Burning failed:", error);
     }
   };
@@ -306,6 +317,7 @@ function App() {
   };
 
   const mintToken = async (tokenAddress, amount) => {
+    setIsLoading(true)
     try {
       const userTokenContract = new ethers.Contract(tokenAddress, TokenABI, state.signer);
       const getPrice = await userTokenContract.getPrice(amount)
@@ -322,7 +334,10 @@ function App() {
       updateAllUserTokens();
       setReRenderFrens(prev => !prev);
       showNotification("Purchased!");
+      setIsLoading(false)
     } catch (error) {
+      setIsLoading(false)
+      showNotification("Error minting tokens:", error);
       console.error("Error minting tokens:", error);
     }
   };
@@ -358,6 +373,7 @@ function App() {
   };
 
   const sellToken = async (tokenAddress, amount) => {
+    setIsLoading(true)
     try {
       const userTokenContract = new ethers.Contract(tokenAddress, TokenABI, state.signer);
       const fees = ethers.utils.parseEther("0.001")
@@ -369,7 +385,10 @@ function App() {
       updateAllUserTokens();
       setReRenderFrens(prev => !prev);
       showNotification("Sold!");
+      setIsLoading(false)
     } catch (error) {
+      setIsLoading(false)
+      showNotification("Error selling tokens:", error);
       console.error("Error selling tokens:", error);
     }
   };
@@ -380,17 +399,6 @@ function App() {
     }
     showNotification("image uploaded...");
   };
-
-  const truncateAndCopyAddress = (tokenAddress) => {
-    const truncatedAddress = tokenAddress.slice(0, 6) + "...";
-    navigator.clipboard.writeText(tokenAddress);
-    showNotification("copied...");
-    return truncatedAddress;
-  };
-
-  const showCreatePost = async () => {
-    setCreatePost(true)
-  }
 
   const disconnect = async () => {
     setState(initialState);
@@ -417,6 +425,7 @@ function App() {
 
   return (
     <div className="app">
+        {isLoading && <Loading/>}
         {!state.connected && <div className='connect-container'><button onClick={connect} className='connect-btn'>connect</button></div>}
       <Router>
       {state.connected && (
